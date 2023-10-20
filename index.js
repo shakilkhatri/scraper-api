@@ -27,7 +27,12 @@ app.get("/scrape", async (req, res) => {
           const info = [];
 
           $(selector).each((index, element) => {
-            info.push($(element).text());
+            info.push(
+              $(element)
+                .text()
+                .replace(/\n|\s{2,}/g, "")
+                .trim()
+            );
           });
           console.log(info);
           res.send(info);
