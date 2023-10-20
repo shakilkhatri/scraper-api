@@ -3,7 +3,7 @@ import axios from "axios";
 import cheerio from "cheerio";
 
 const app = express();
-const port = 8080;
+const port = 8000;
 
 app.get("/", async (req, res) => {
   res.send("Welcome to the server");
