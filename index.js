@@ -6,8 +6,12 @@ const app = express();
 const port = 8080;
 
 app.get("/", async (req, res) => {
+  res.send("Welcome to the server");
+});
+
+app.get("/scrape", async (req, res) => {
   const { url, selector } = req.query;
-  if (!url || !selector) res.send("Welcome to the server");
+  if (!url || !selector) res.send("Something wrong with params!");
   else {
     try {
       axios
