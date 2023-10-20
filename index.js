@@ -5,6 +5,8 @@ import cheerio from "cheerio";
 const app = express();
 const port = 8000;
 
+app.use(express.static("public"));
+
 app.get("/", async (req, res) => {
   res.send("Welcome to the server");
 });
