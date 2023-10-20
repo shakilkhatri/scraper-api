@@ -3,7 +3,7 @@ import axios from "axios";
 import cheerio from "cheerio";
 
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
 
 app.use(express.static("public"));
 
@@ -44,4 +44,9 @@ app.get("/scrape", async (req, res) => {
 
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
 });
