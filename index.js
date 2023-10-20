@@ -11,6 +11,10 @@ app.get("/", async (req, res) => {
   res.send("Welcome to the server");
 });
 
+app.get("/test", async (req, res) => {
+  res.send("Test url");
+});
+
 app.get("/scrape", async (req, res) => {
   const { url, selector } = req.query;
   if (!url || !selector) res.send("Something wrong with params!");
