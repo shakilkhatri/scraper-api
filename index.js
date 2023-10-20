@@ -45,8 +45,3 @@ app.get("/scrape", async (req, res) => {
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: "Internal Server Error" });
-});
