@@ -7,9 +7,9 @@ const port = process.env.PORT || 8000;
 
 app.use(express.static("public"));
 
-// app.get("/", async (req, res) => {
-//   res.send("Welcome to the server");
-// });
+app.get("/", async (req, res) => {
+  res.sendFile("/public/index.html");
+});
 
 app.get("/test", async (req, res) => {
   res.send("Test url");
