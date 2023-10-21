@@ -19,7 +19,7 @@
       <div class="mb-3">
         <input type="text" class="form-control" id="selector" />
       </div>
-      <button type="button" class="btn btn-primary" onclick="scrapeByParams()">
+      <button type="button" class="btn btn-primary" onclick="scrapeByBody()">
         Process
       </button>
 
@@ -44,6 +44,24 @@
       let newUrl =
         endPoint + "?url=" + url.value + "&selector=" + selector.value;
       fetch(newUrl)
+        .then((r) => r.text())
+        .then((r) => {
+          let arr = JSON.parse(r);
+          output.innerHTML = arr.map((i) => `<li>${i}</li>`).join("");
+        });
+    };
+
+    const scrapeByBody = (e) => {
+      output.innerHTML = "Loading....";
+
+      let endPoint = location.origin + "/scrapev2";
+      let body = { url: url.value, selector: selector.value };
+
+      fetch(endPoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
         .then((r) => r.text())
         .then((r) => {
           let arr = JSON.parse(r);
