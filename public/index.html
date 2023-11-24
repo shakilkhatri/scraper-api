@@ -19,8 +19,21 @@
       <div class="mb-3">
         <input type="text" class="form-control" id="selector" />
       </div>
+      <h4>Google Query</h4>
+      <div class="mb-3">
+        <input type="text" class="form-control" id="googleQuery" />
+      </div>
+      <button type="button" class="btn btn-primary" onclick="scrapeByParams()">
+        ScrapeV1
+      </button>
       <button type="button" class="btn btn-primary" onclick="scrapeByBody()">
-        Process
+        ScrapeV2
+      </button>
+      <button type="button" class="btn btn-primary" onclick="google()">
+        Google Search
+      </button>
+      <button type="button" class="btn btn-primary" onclick="routedApiCall()">
+        Routed API call
       </button>
 
       <div id="output" class="mt-5"></div>
@@ -30,12 +43,13 @@
   <script>
     const url = document.getElementById("url");
     const selector = document.getElementById("selector");
+    const googleQuery = document.getElementById("googleQuery");
     const output = document.getElementById("output");
     const btn = document.getElementById("button");
 
-    url.value =
-      "https://trendlyne.com/stock-screeners/price-based/top-gainers/week/";
-    selector.value = "a.stockrow";
+    // url.value =
+    //   "https://trendlyne.com/stock-screeners/price-based/top-gainers/week/";
+    // selector.value = "a.stockrow";
 
     const scrapeByParams = (e) => {
       output.innerHTML = "Loading....";
@@ -66,6 +80,42 @@
         .then((r) => {
           let arr = JSON.parse(r);
           output.innerHTML = arr.map((i) => `<li>${i}</li>`).join("");
+        });
+    };
+
+    const google = (e) => {
+      output.innerHTML = "Loading....";
+
+      let endPoint = location.origin + "/google?query=" + googleQuery.value;
+      // let body = { url: url.value, selector: selector.value };
+
+      fetch(endPoint, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify(body),
+      })
+        .then((r) => r.text())
+        .then((r) => {
+          let arr = JSON.parse(r);
+          output.innerHTML = arr.map((i) => `<li>${i}</li>`).join("");
+        });
+    };
+
+    const routedApiCall = (e) => {
+      output.innerHTML = "Loading....";
+
+      let endPoint = location.origin + "/url";
+      let body = { url: url.value };
+
+      fetch(endPoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+        .then((r) => r.text())
+        .then((r) => {
+          let arr = JSON.parse(r);
+          output.innerHTML = r;
         });
     };
   </script>
