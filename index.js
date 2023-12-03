@@ -1,6 +1,5 @@
 import express from "express";
-import axios from "axios";
-import cheerio from "cheerio";
+import cors from "cors";
 import bodyParser from "body-parser";
 
 import scrapev1 from "./scrapev1.js";
@@ -10,6 +9,15 @@ import anyUrl from "./anyUrl.js";
 
 const app = express();
 const port = process.env.PORT || 8000;
+
+const corsOptions = {
+  // origin: "http://localhost:3000", // Allow access from this origin
+  origin: "https://stock-assistant-6f34.vercel.app", // Allow access from this origin
+  allowedHeaders: ["Content-Type"], // Add the headers you need to allow
+  // You can also include other CORS configuration options as needed
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 

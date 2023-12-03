@@ -1,9 +1,9 @@
 import axios from "axios";
-import cheerio from "cheerio";
-import { stringify } from "flatted";
+import fs from "fs";
 
 export default async (req, res) => {
   const { url } = req.body;
+  console.log(url);
   if (!url) res.send("Something wrong with body!");
   else {
     try {
@@ -11,6 +11,18 @@ export default async (req, res) => {
         .get(url)
         .then((response) => {
           console.log(response.data);
+          //   fs.writeFile(
+          //     "response.json",
+          //     JSON.stringify(response.data, null, 2),
+          //     "utf8",
+          //     (err) => {
+          //       if (err) {
+          //         console.error("An error occurred:", err);
+          //       } else {
+          //         console.log("Response saved");
+          //       }
+          //     }
+          //   );
           res.send(response.data);
         })
         .catch((error) => {
