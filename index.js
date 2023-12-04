@@ -11,8 +11,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 const corsOptions = {
-  // origin: "http://localhost:3000", // Allow access from this origin
-  origin: "https://stock-assistant-6f34.vercel.app", // Allow access from this origin
+  origin: ["https://stock-assistant-6f34.vercel.app", "http://localhost:3000"],
   allowedHeaders: ["Content-Type"], // Add the headers you need to allow
   // You can also include other CORS configuration options as needed
 };
