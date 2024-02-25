@@ -41,7 +41,7 @@ app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });
 
-cron.schedule("0 20 * * *", () => {
+cron.schedule("5 20 * * *", () => {
   console.log("Cron job is running!");
   const iciciMomentumPicksUrl =
     "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
