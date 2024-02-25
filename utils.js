@@ -1,18 +1,13 @@
 import { PdfReader } from "pdfreader";
 import axios from "axios";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import clientPromise from "./mongodb.js";
+import { ObjectId } from "mongodb";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const databaseName = "db";
+const collectionName = "iciciMomentum";
 
-export const parseRecommendationStringsFromOutput = async (filePath) => {
-  let data = fs.readFileSync(path.join(__dirname + filePath), "utf8");
-
-  const pages = JSON.parse(data);
-
+export const parseRecommendationStringsFromOutput = async (data) => {
+  let pages = data;
   const newRecStart = pages[1].indexOf("New recommendations");
   const newRecEnd = pages[1].indexOf("Open recommendations");
   const openRecEnd = pages[1].indexOf("Intraday & Positional");
@@ -101,48 +96,64 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   return recommendations;
 };
 
-export const readPDFfromURLAndSaveAsJSON = async (pdfUrl, outputFilePath) => {
-  try {
-    const response = await axios.get(pdfUrl, { responseType: "arraybuffer" });
-    const pdfBuffer = Buffer.from(response.data);
+export const readPDFtextFromURL = async (pdfUrl) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.get(pdfUrl, { responseType: "arraybuffer" });
+      const pdfBuffer = Buffer.from(response.data);
 
-    // Create a PDFReader instance
-    const reader = new PdfReader();
+      // Create a PDFReader instance
+      const reader = new PdfReader();
 
-    // Variables to store extracted text and current page number
-    let textContent = "";
-    let currentPageNumber = 0;
-    let allData = {};
+      // Variables to store extracted text and current page number
+      let textContent = "";
+      let currentPageNumber = 0;
+      let allData = {};
 
-    // Parse the PDF buffer
-    reader.parseBuffer(pdfBuffer, (err, item) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
+      // Parse the PDF buffer
+      reader.parseBuffer(pdfBuffer, (err, item) => {
+        if (err) {
+          console.log(err);
+          reject(err); // Reject the promise on error
+          return;
+        }
 
-      if (!item) {
-        // Reached the end of the PDF
-        fs.writeFileSync(
-          path.join(__dirname + outputFilePath),
-          JSON.stringify(allData, null, 4)
-        );
-        console.log(
-          "Data has been saved to",
-          path.join(__dirname + outputFilePath)
-        );
-        return allData; // Return allData when writing is done
-      } else if (item.page) {
-        // Update the current page number
-        currentPageNumber = item.page;
-        allData[currentPageNumber] = ""; // Initialize the page text
-      } else if (item.text) {
-        // Accumulate text only if it is on the target page
-        textContent += "," + item.text;
-        allData[currentPageNumber] += "," + item.text;
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching PDF:", error);
-  }
+        if (!item) {
+          // Reached the end of the PDF
+          resolve(allData); // Resolve the promise with allData when reading is done
+        } else if (item.page) {
+          // Update the current page number
+          currentPageNumber = item.page;
+          allData[currentPageNumber] = ""; // Initialize the page text
+        } else if (item.text) {
+          // Accumulate text only if it is on the target page
+          textContent += "," + item.text;
+          allData[currentPageNumber] += "," + item.text;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching or parsing PDF:", error);
+      reject(error); // Reject the promise on error
+    }
+  });
 };
+
+export async function updateICICIMomentumMongoDBData(body) {
+  try {
+    const client = await clientPromise;
+    const db = client.db(databaseName);
+
+    const result = await db
+      .collection(collectionName)
+      .updateOne(
+        { _id: new ObjectId("65db630818b229023c335b9e") },
+        { $set: body }
+      );
+    return {
+      message: "Item updated successfully",
+      body,
+    };
+  } catch (e) {
+    return { error: e.message };
+  }
+}

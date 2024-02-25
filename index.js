@@ -2,14 +2,19 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cron from "node-cron";
+import dotenv from "dotenv";
 
 import scrapev1 from "./controllers/scrapev1.js";
 import scrapev2 from "./controllers/scrapev2.js";
 import google from "./controllers/google.js";
 import anyUrl from "./controllers/anyUrl.js";
 // import pdfExtract from "./controllers/pdfToText.js";
-import { iciciController } from "./controllers/iciciResearch.js";
-import { readPDFfromURLAndSaveAsJSON } from "./utils.js";
+import {
+  iciciMomentumCronJob,
+  iciciMongoDBRead,
+} from "./controllers/iciciResearch.js";
+
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8000;
@@ -35,16 +40,14 @@ app.post("/scrapev2", scrapev2); // uses body
 app.get("/google", google);
 app.post("/url", anyUrl);
 // app.post("/pdfToText", pdfExtract);
-app.get("/iciciResearch", iciciController);
+app.get("/getIciciResearch", iciciMongoDBRead);
 
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });
 
-cron.schedule("5 20 * * *", () => {
+cron.schedule("0 22 * * *", async () => {
   console.log("Cron job is running!");
-  const iciciMomentumPicksUrl =
-    "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
 
-  readPDFfromURLAndSaveAsJSON(iciciMomentumPicksUrl, "/Momentum_Picks.json");
+  await iciciMomentumCronJob();
 });

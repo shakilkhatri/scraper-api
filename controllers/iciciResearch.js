@@ -1,12 +1,23 @@
+import clientPromise from "../mongodb.js";
 import {
   parseRecommendationStringsFromOutput,
+  readPDFtextFromURL,
   tableStringToObjects,
+  updateICICIMomentumMongoDBData,
 } from "../utils.js";
 
-export const iciciController = async (req, res) => {
+const databaseName = "db";
+const collectionName = "iciciMomentum";
+
+const iciciMomentumPicksUrl =
+  "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
+
+export const iciciMomentumCronJob = async () => {
   try {
+    const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
+
     const [newRecString, openRecString, gladiatorsString] =
-      await parseRecommendationStringsFromOutput("/Momentum_Picks.json");
+      await parseRecommendationStringsFromOutput(data);
 
     const Page1_newRecommendations = await tableStringToObjects(
       newRecString,
@@ -26,9 +37,22 @@ export const iciciController = async (req, res) => {
       Page1_openRecommendations,
       gladiators_openRecommendations,
     };
-    res.status(200).send(response);
+
+    const res = await updateICICIMomentumMongoDBData(response);
+    console.log(res);
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred");
+  }
+};
+
+export const iciciMongoDBRead = async (req, res) => {
+  try {
+    const client = await clientPromise;
+    const db = client.db(databaseName);
+    const data = await db.collection(collectionName).find({}).toArray();
+    res.status(200).send(data[0]);
+  } catch (e) {
+    res.status(500).send({ error: e.message });
+    console.log(e);
   }
 };
