@@ -71,8 +71,8 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
 
   let headers;
 
-  if ((type = "Intraday/Positional")) headers = headers_Page1;
-  if ((type = "Gladiators")) headers = headers_Gladiators;
+  if (type === "Intraday/Positional") headers = headers_Page1;
+  if (type === "Gladiators") headers = headers_Gladiators;
 
   // Calculate the number of columns
   const numColumns = headers.length;

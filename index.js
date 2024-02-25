@@ -46,6 +46,7 @@ app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });
 
+// await iciciMomentumCronJob();
 cron.schedule("0 22 * * *", async () => {
   console.log("Cron job is running!");
 
