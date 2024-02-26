@@ -47,7 +47,7 @@ app.listen(port, () => {
 });
 
 // await iciciMomentumCronJob();
-cron.schedule("0 22 * * *", async () => {
+cron.schedule("30 16 * * *", async () => {
   console.log("Cron job is running!");
 
   await iciciMomentumCronJob();
