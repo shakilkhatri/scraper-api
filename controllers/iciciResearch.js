@@ -33,6 +33,7 @@ export const iciciMomentumCronJob = async () => {
     );
 
     const response = {
+      date: new Date().toLocaleString("en-Gb"),
       Page1_newRecommendations,
       Page1_openRecommendations,
       gladiators_openRecommendations,
