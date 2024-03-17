@@ -9,25 +9,33 @@ const collectionName = "iciciMomentum";
 export const parseRecommendationStringsFromOutput = async (data) => {
   let pages = data;
   const newRecStart = pages[1].indexOf("New recommendations");
-  const newRecEnd = pages[1].indexOf("Open recommendations");
-  const openRecEnd = pages[1].indexOf("Intraday & Positional");
+  const openRecStart = pages[1].indexOf("Open recommendations");
+  const disclaimer1start = pages[1].indexOf("Intraday & Positional");
+  const disclaimer2start = pages[1].indexOf("Intraday recommendations");
+  const disclaimerStart =
+    disclaimer1start !== -1 ? disclaimer1start : disclaimer2start;
 
-  if (newRecStart === -1) {
-    console.log("New recommendations" + " String not found");
-    return;
-  }
-  if (newRecEnd === -1) {
-    console.log("Open recommendations " + " String not found");
-    return;
-  }
-  if (openRecEnd === -1) {
-    console.log("Intraday & Positional" + " String not found");
-    return;
-  }
-
-  const newRecString = pages[1].slice(newRecStart + 20, newRecEnd - 1);
-  const openRecString = pages[1].slice(newRecEnd + 21, openRecEnd - 1);
+  let newRecString;
+  let openRecString;
   let gladiatorsString = "";
+
+  if (newRecStart !== -1) {
+    console.log("New recommendations found");
+    if (openRecStart !== -1) {
+      console.log("Open recommendations found");
+      newRecString = pages[1].slice(newRecStart + 20, openRecStart - 1);
+    } else if (disclaimerStart !== -1) {
+      console.log("Intraday & Positional found");
+      newRecString = pages[1].slice(newRecStart + 20, disclaimerStart - 1);
+    }
+  }
+  if (openRecStart !== -1) {
+    console.log("Open recommendations found");
+    if (disclaimerStart !== -1) {
+      console.log("Intraday & Positional found");
+      openRecString = pages[1].slice(openRecStart + 21, disclaimerStart - 1);
+    }
+  }
 
   console.log("new___", newRecString);
   console.log("open___", openRecString);
@@ -80,6 +88,9 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   // Initialize an array to store the objects
   const recommendations = [];
 
+  if (!recommendationStrings) {
+    return [];
+  }
   recommendationStrings = recommendationStrings.slice(74).split(",");
 
   // Iterate through the recommendation strings and convert them into objects

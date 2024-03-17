@@ -10,7 +10,7 @@ import google from "./controllers/google.js";
 import anyUrl from "./controllers/anyUrl.js";
 // import pdfExtract from "./controllers/pdfToText.js";
 import {
-  iciciMomentumCronJob,
+  iciciMomentumScrapeAndStoreToDB,
   iciciMongoDBRead,
 } from "./controllers/iciciResearch.js";
 
@@ -40,15 +40,14 @@ app.post("/scrapev2", scrapev2); // uses body
 app.get("/google", google);
 app.post("/url", anyUrl);
 // app.post("/pdfToText", pdfExtract);
-app.get("/getIciciResearch", iciciMongoDBRead);
+app.get("/iciciResearch", iciciMomentumScrapeAndStoreToDB);
+app.get("/getIciciResearchFromDB", iciciMongoDBRead);
 
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
 });
 
-// await iciciMomentumCronJob();
-cron.schedule("30 16 * * *", async () => {
-  console.log("Cron job is running!");
-
-  await iciciMomentumCronJob();
-});
+// cron.schedule("30 16 * * *", async () => {
+//   console.log("Cron job is running!");
+//   await iciciMomentumScrapeAndStoreToDB();
+// });

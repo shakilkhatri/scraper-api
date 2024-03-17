@@ -12,7 +12,7 @@ const collectionName = "iciciMomentum";
 const iciciMomentumPicksUrl =
   "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
 
-export const iciciMomentumCronJob = async () => {
+export const iciciMomentumScrapeAndStoreToDB = async () => {
   try {
     const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
 
