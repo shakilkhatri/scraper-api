@@ -12,7 +12,7 @@ const collectionName = "iciciMomentum";
 const iciciMomentumPicksUrl =
   "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
 
-export const iciciMomentumScrapeAndStoreToDB = async () => {
+export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
   try {
     const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
 
@@ -39,10 +39,12 @@ export const iciciMomentumScrapeAndStoreToDB = async () => {
       gladiators_openRecommendations,
     };
 
-    const res = await updateICICIMomentumMongoDBData(response);
-    console.log(res);
+    const res1 = await updateICICIMomentumMongoDBData(response);
+    console.log(res1);
+    res.status(200).send(res1);
   } catch (error) {
     console.error(error);
+    res.status(500).send({ error: error.message });
   }
 };
 
