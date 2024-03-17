@@ -33,7 +33,7 @@ export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
     );
 
     const response = {
-      date: new Date().toLocaleString("en-Gb"),
+      date: new Date().toISOString(),
       Page1_newRecommendations,
       Page1_openRecommendations,
       gladiators_openRecommendations,
