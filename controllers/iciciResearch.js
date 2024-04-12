@@ -15,6 +15,10 @@ const iciciMomentumPicksUrl =
 export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
   try {
     const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
+    console.log("==========================================");
+    console.log(data[1]);
+    console.log("==========================================");
+    debugger;
 
     const [newRecString, openRecString, gladiatorsString] =
       await parseRecommendationStringsFromOutput(data);

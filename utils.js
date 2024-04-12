@@ -10,6 +10,7 @@ export const parseRecommendationStringsFromOutput = async (data) => {
   let pages = data;
   const newRecStart = pages[1].indexOf("New recommendations");
   const openRecStart = pages[1].indexOf("Open recommendations");
+  const scripActionString = pages[1].indexOf("Scrip,Action");
   const disclaimer1start = pages[1].indexOf("Intraday & Positional");
   const disclaimer2start = pages[1].indexOf("Intraday recommendations");
   const disclaimerStart =
@@ -23,17 +24,22 @@ export const parseRecommendationStringsFromOutput = async (data) => {
     console.log("New recommendations found");
     if (openRecStart !== -1) {
       console.log("Open recommendations found");
-      newRecString = pages[1].slice(newRecStart + 20, openRecStart - 1);
-    } else if (disclaimerStart !== -1) {
-      console.log("Intraday & Positional found");
-      newRecString = pages[1].slice(newRecStart + 20, disclaimerStart - 1);
+      newRecString = pages[1].slice(newRecStart + 16, openRecStart - 69);
     }
+    // else if (disclaimerStart !== -1) {
+    //   console.log("Intraday & Positional found");
+    //   newRecString = pages[1].slice(newRecStart + 20, disclaimerStart - 1);
+    // }
   }
   if (openRecStart !== -1) {
     console.log("Open recommendations found");
-    if (disclaimerStart !== -1) {
-      console.log("Intraday & Positional found");
-      openRecString = pages[1].slice(openRecStart + 21, disclaimerStart - 1);
+    // if (disclaimerStart !== -1) {
+    //   console.log("Intraday & Positional found");
+    //   openRecString = pages[1].slice(openRecStart + 21, disclaimerStart - 1);
+    // }
+    if (scripActionString !== -1) {
+      console.log("scrip,Action String found");
+      openRecString = pages[1].slice(openRecStart + 17, scripActionString - 1);
     }
   }
 
@@ -70,6 +76,7 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   const headers_Gladiators = [
     "Date",
     "ScripName",
+    "CMP",
     "Strategy",
     "RecommendationsPrice",
     "Target",
@@ -91,7 +98,7 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   if (!recommendationStrings) {
     return [];
   }
-  recommendationStrings = recommendationStrings.slice(74).split(",");
+  recommendationStrings = recommendationStrings.slice(78).split(",");
 
   // Iterate through the recommendation strings and convert them into objects
   for (let i = 0; i < recommendationStrings.length; i += numColumns) {
