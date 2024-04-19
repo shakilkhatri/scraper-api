@@ -12,6 +12,7 @@ import {
   iciciMongoDBRead,
 } from "./controllers/iciciResearch.js";
 import pdfUrlToText from "./controllers/pdfToText.js";
+import scrapev2POSTapi from "./controllers/scrapev2POSTapi.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.get("/", async (req, res) => {
 
 app.get("/scrape", scrapev1); // uses params
 app.post("/scrapev2", scrapev2); // uses body
+app.post("/scrapev2POSTapi", scrapev2POSTapi); // uses body
 app.get("/google", google);
 app.post("/url", anyUrl);
 app.get("/pdfToText", pdfUrlToText);
