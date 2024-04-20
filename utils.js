@@ -10,11 +10,18 @@ export const parseRecommendationStringsFromOutput = async (data) => {
   let pages = data;
   const newRecStart = pages[1].indexOf("New recommendations");
   const openRecStart = pages[1].indexOf("Open recommendations");
-  const scripActionString = pages[1].indexOf("Scrip,Action");
+  const scripActionStringStart = pages[1].indexOf("Scrip,Action");
   const disclaimer1start = pages[1].indexOf("Intraday & Positional");
   const disclaimer2start = pages[1].indexOf("Intraday recommendations");
   const disclaimerStart =
     disclaimer1start !== -1 ? disclaimer1start : disclaimer2start;
+
+  console.log("newRecStart:", newRecStart);
+  console.log("openRecStart:", openRecStart);
+  console.log("scripActionStringStart:", scripActionStringStart);
+  console.log("disclaimer1start:", disclaimer1start);
+  console.log("disclaimer2start:", disclaimer2start);
+  console.log("disclaimerStart:", disclaimerStart);
 
   let newRecString;
   let openRecString;
@@ -37,9 +44,16 @@ export const parseRecommendationStringsFromOutput = async (data) => {
     //   console.log("Intraday & Positional found");
     //   openRecString = pages[1].slice(openRecStart + 21, disclaimerStart - 1);
     // }
-    if (scripActionString !== -1) {
+    if (scripActionStringStart !== -1) {
       console.log("scrip,Action String found");
-      openRecString = pages[1].slice(openRecStart + 17, scripActionString - 1);
+      if (scripActionStringStart > openRecStart) {
+        openRecString = pages[1].slice(
+          openRecStart + 17,
+          scripActionStringStart - 1
+        );
+      } else {
+        openRecString = pages[1].slice(openRecStart + 17);
+      }
     }
   }
 
