@@ -132,6 +132,12 @@ export const readPDFtextFromURL = async (pdfUrl) => {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(pdfUrl, { responseType: "arraybuffer" });
+
+      if (response.headers["content-type"] !== "application/pdf") {
+        resolve({}); // Return empty object if not a PDF
+        return;
+      }
+
       const pdfBuffer = Buffer.from(response.data);
 
       // Create a PDFReader instance
@@ -187,5 +193,21 @@ export async function updateICICIMomentumMongoDBData(body) {
     };
   } catch (e) {
     return { error: e.message };
+  }
+}
+
+export function findNewRecommendations_today(inputString) {
+  if (!inputString) {
+    return "";
+  }
+  const start = inputString.indexOf("New recommendations");
+  const end = inputString.lastIndexOf("New recommendations");
+
+  if (start !== -1 && end !== -1 && start !== end) {
+    return inputString
+      .substring(start + "New recommendations".length - 3, end - 1)
+      .trim();
+  } else {
+    return ""; // Return empty string if there are not exactly two occurrences
   }
 }

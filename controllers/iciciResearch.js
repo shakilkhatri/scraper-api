@@ -1,10 +1,12 @@
 import clientPromise from "../mongodb.js";
 import {
+  findNewRecommendations_today,
   parseRecommendationStringsFromOutput,
   readPDFtextFromURL,
   tableStringToObjects,
   updateICICIMomentumMongoDBData,
 } from "../utils.js";
+import moment from "moment";
 
 const databaseName = "db";
 const collectionName = "iciciMomentum";
@@ -12,17 +14,30 @@ const collectionName = "iciciMomentum";
 const iciciMomentumPicksUrl =
   "https://www.icicidirect.com/mailimages/Momentum_Picks.pdf";
 
+const iciciMomentumPicksUrl_Today = `https://www.icicidirect.com/mailimages/Momentum_Pick_${moment().format(
+  "DDMMYYYY"
+)}.pdf`;
+
 export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
   try {
     const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
+    // const data = { 1: "a" };
+    const data_today = await readPDFtextFromURL(iciciMomentumPicksUrl_Today);
     console.log("==========================================");
     console.log(data[1]);
     console.log("==========================================");
-    debugger;
 
     const [newRecString, openRecString, gladiatorsString] =
       await parseRecommendationStringsFromOutput(data);
 
+    const todayRecString = findNewRecommendations_today(data_today[1]);
+
+    console.log("+++++++++++", todayRecString);
+
+    const today_newRecommendations = await tableStringToObjects(
+      todayRecString,
+      "Intraday/Positional"
+    );
     const Page1_newRecommendations = await tableStringToObjects(
       newRecString,
       "Intraday/Positional"
@@ -38,6 +53,7 @@ export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
 
     const response = {
       date: new Date().toISOString(),
+      today_newRecommendations,
       Page1_newRecommendations,
       Page1_openRecommendations,
       gladiators_openRecommendations,
