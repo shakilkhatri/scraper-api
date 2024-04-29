@@ -20,9 +20,11 @@ const iciciMomentumPicksUrl_Today = `https://www.icicidirect.com/mailimages/Mome
 
 export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
   try {
-    const data = await readPDFtextFromURL(iciciMomentumPicksUrl);
-    // const data = { 1: "a" };
-    const data_today = await readPDFtextFromURL(iciciMomentumPicksUrl_Today);
+    const [data, data_today] = await Promise.all([
+      readPDFtextFromURL(iciciMomentumPicksUrl),
+      readPDFtextFromURL(iciciMomentumPicksUrl_Today),
+    ]);
+
     console.log("==========================================");
     console.log(data[1]);
     console.log("==========================================");
