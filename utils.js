@@ -128,51 +128,38 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   return recommendations;
 };
 
-export const readPDFtextFromURL = async (pdfUrl) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(pdfUrl, { responseType: "arraybuffer" });
-
-      if (response.headers["content-type"] !== "application/pdf") {
-        resolve({}); // Return empty object if not a PDF
-        return;
-      }
-
-      const pdfBuffer = Buffer.from(response.data);
-
-      // Create a PDFReader instance
-      const reader = new PdfReader();
-
-      // Variables to store extracted text and current page number
-      let textContent = "";
-      let currentPageNumber = 0;
-      let allData = {};
-
-      // Parse the PDF buffer
-      reader.parseBuffer(pdfBuffer, (err, item) => {
-        if (err) {
-          console.log(err);
-          reject(err); // Reject the promise on error
+export const readPDFtextFromURL = (pdfUrl) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(pdfUrl, { responseType: "arraybuffer" })
+      .then((response) => {
+        if (response.headers["content-type"] !== "application/pdf") {
+          resolve({});
           return;
         }
-
-        if (!item) {
-          // Reached the end of the PDF
-          resolve(allData); // Resolve the promise with allData when reading is done
-        } else if (item.page) {
-          // Update the current page number
-          currentPageNumber = item.page;
-          allData[currentPageNumber] = ""; // Initialize the page text
-        } else if (item.text) {
-          // Accumulate text only if it is on the target page
-          textContent += "," + item.text;
-          allData[currentPageNumber] += "," + item.text;
-        }
+        const pdfBuffer = Buffer.from(response.data);
+        const reader = new PdfReader();
+        let allData = {};
+        let currentPageNumber = 0;
+        reader.parseBuffer(pdfBuffer, (err, item) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (!item) {
+            resolve(allData);
+          } else if (item.page) {
+            currentPageNumber = item.page;
+            allData[currentPageNumber] = "";
+          } else if (item.text) {
+            allData[currentPageNumber] += item.text + ",";
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching or parsing PDF:", error);
+        reject(error);
       });
-    } catch (error) {
-      console.error("Error fetching or parsing PDF:", error);
-      reject(error); // Reject the promise on error
-    }
   });
 };
 
@@ -210,4 +197,8 @@ export function findNewRecommendations_today(inputString) {
   } else {
     return ""; // Return empty string if there are not exactly two occurrences
   }
+}
+
+export function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
