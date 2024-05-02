@@ -19,6 +19,7 @@ const iciciMomentumPicksUrl_Today = `https://www.icicidirect.com/mailimages/Mome
 )}.pdf`;
 
 export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
+  req.setTimeout(120000); // 2 minutes
   try {
     const [data, data_today] = await Promise.all([
       readPDFtextFromURL(iciciMomentumPicksUrl),

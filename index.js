@@ -31,11 +31,6 @@ app.use(bodyParser.json());
 
 app.use(express.static("public"));
 
-const increaseTimeout = (req,res,next) => {
-  req.setTimeout(120000);
-  next();
-}
-
 app.get("/", async (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
@@ -46,7 +41,7 @@ app.post("/scrapev2POSTapi", scrapev2POSTapi); // uses body
 app.get("/google", google);
 app.post("/url", anyUrl);
 app.get("/pdfToText", pdfUrlToText);
-app.get("/iciciResearch",increaseTimeout, iciciMomentumScrapeAndStoreToDB);
+app.get("/iciciResearch", iciciMomentumScrapeAndStoreToDB);
 app.get("/getIciciResearchFromDB", iciciMongoDBRead); // implemented but dont want to use. this server must only be used for scraping purposes
 
 app.listen(port, () => {
