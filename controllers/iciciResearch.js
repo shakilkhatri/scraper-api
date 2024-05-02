@@ -1,7 +1,6 @@
 import clientPromise from "../mongodb.js";
 import {
   findNewRecommendations_today,
-  isEmptyObject,
   parseRecommendationStringsFromOutput,
   readPDFtextFromURL,
   tableStringToObjects,
@@ -21,18 +20,18 @@ const iciciMomentumPicksUrl_Today = `https://www.icicidirect.com/mailimages/Mome
 
 export const iciciMomentumScrapeAndStoreToDB = async (req, res) => {
   try {
-    const data_today = await readPDFtextFromURL(iciciMomentumPicksUrl_Today);
-    let data;
-    if (isEmptyObject(data_today)) {
-      data = await readPDFtextFromURL(iciciMomentumPicksUrl);
-    }
+    const [data, data_today] = await Promise.all([
+      readPDFtextFromURL(iciciMomentumPicksUrl),
+      // readPDFtextFromURL(iciciMomentumPicksUrl_Today),
+      new Promise((resolve, reject) => resolve({})),
+    ]);
 
     console.log("==========================================");
-    console.log(data_today[1] || data[1]);
+    console.log(data[1]);
     console.log("==========================================");
 
     const [newRecString, openRecString, gladiatorsString] =
-      await parseRecommendationStringsFromOutput(data_today || data);
+      await parseRecommendationStringsFromOutput(data);
 
     const todayRecString = findNewRecommendations_today(data_today[1]);
 
