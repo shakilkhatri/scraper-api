@@ -32,11 +32,10 @@ export const parseRecommendationStringsFromOutput = async (data) => {
     if (openRecStart !== -1) {
       console.log("Open recommendations found");
       newRecString = pages[1].slice(newRecStart + 16, openRecStart - 70);
+    } else if (disclaimerStart !== -1) {
+      console.log("Intraday & Positional found");
+      newRecString = pages[1].slice(newRecStart + 16, disclaimerStart - 1);
     }
-    // else if (disclaimerStart !== -1) {
-    //   console.log("Intraday & Positional found");
-    //   newRecString = pages[1].slice(newRecStart + 20, disclaimerStart - 1);
-    // }
   }
   if (openRecStart !== -1) {
     console.log("Open recommendations found");
