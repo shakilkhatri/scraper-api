@@ -8,56 +8,72 @@ const collectionName = "iciciMomentum";
 
 export const parseRecommendationStringsFromOutput = async (data) => {
   let pages = data;
-  const newRecStart = pages[1].indexOf("New recommendations");
-  const openRecStart = pages[1].indexOf("Open recommendations");
-  const scripActionStringStart = pages[1].indexOf("Scrip,Action");
-  const disclaimer1start = pages[1].indexOf("Intraday & Positional");
-  const disclaimer2start = pages[1].indexOf("Intraday recommendations");
-  const disclaimerStart =
-    disclaimer1start !== -1 ? disclaimer1start : disclaimer2start;
 
+  const newRecTarget = "New recommendations";
+  const openRecTarget = "Open recommendations";
+  const scripActionTarget = "Scrip Name,Action";
+  const newRecDisclaimerTarget = "Intraday Index recommendations are";
+  const freshRecDisclaimerTarget = "Report on the fresh recommendation";
+
+  let freshRecStart = -1;
+  let newRecStart = -1;
+  const firstIndexOfNewRec = pages[1].indexOf(newRecTarget);
+  const secondIndexOfNewRec = pages[1].indexOf(
+    newRecTarget,
+    firstIndexOfNewRec + 1
+  );
+  if (secondIndexOfNewRec !== -1) {
+    freshRecStart = firstIndexOfNewRec; // First occurrence
+    newRecStart = secondIndexOfNewRec; // Second occurrence
+  } else {
+    newRecStart = firstIndexOfNewRec; //only occurance
+  }
+  const openRecStart = pages[1].indexOf(openRecTarget);
+  const scripActionStringStart = pages[1].indexOf(scripActionTarget);
+  const newRecDisclaimerStart = pages[1].indexOf(newRecDisclaimerTarget);
+  const freshRecDisclaimerStart = pages[1].indexOf(freshRecDisclaimerTarget);
+
+  console.log("freshRecStart:", freshRecStart);
   console.log("newRecStart:", newRecStart);
   console.log("openRecStart:", openRecStart);
   console.log("scripActionStringStart:", scripActionStringStart);
-  console.log("disclaimer1start:", disclaimer1start);
-  console.log("disclaimer2start:", disclaimer2start);
-  console.log("disclaimerStart:", disclaimerStart);
+  console.log("newRecDisclaimerStart:", newRecDisclaimerStart);
+  console.log("freshRecDisclaimerStart:", freshRecDisclaimerStart);
 
+  let freshRecString;
   let newRecString;
   let openRecString;
   let gladiatorsString = "";
 
-  if (newRecStart !== -1) {
-    console.log("New recommendations found");
-    if (openRecStart !== -1) {
-      console.log("Open recommendations found");
-      newRecString = pages[1].slice(newRecStart + 16, openRecStart - 70);
-    } else if (disclaimerStart !== -1) {
-      console.log("Intraday & Positional found");
-      newRecString = pages[1].slice(newRecStart + 16, disclaimerStart - 1);
-    }
+  if (freshRecStart !== -1 && freshRecDisclaimerStart !== -1) {
+    freshRecString = pages[1].slice(
+      freshRecStart + newRecTarget.length + 1, // 1 for comma
+      freshRecDisclaimerStart - 1
+    );
   }
+
+  if (newRecStart !== -1 && newRecDisclaimerStart !== -1) {
+    newRecString = pages[1].slice(
+      newRecStart + newRecTarget.length + 1, // 1 for comma
+      newRecDisclaimerStart - 1
+    );
+  }
+
   if (openRecStart !== -1) {
-    console.log("Open recommendations found");
-    // if (disclaimerStart !== -1) {
-    //   console.log("Intraday & Positional found");
-    //   openRecString = pages[1].slice(openRecStart + 21, disclaimerStart - 1);
-    // }
     if (scripActionStringStart !== -1) {
-      console.log("scrip,Action String found");
       if (scripActionStringStart > openRecStart) {
         openRecString = pages[1].slice(
-          openRecStart + 17,
+          openRecStart + openRecTarget.length + 1,
           scripActionStringStart - 1
         );
       } else {
-        openRecString = pages[1].slice(openRecStart + 17);
+        openRecString = pages[1].slice(
+          openRecStart + openRecTarget.length + 1,
+          -1
+        );
       }
     }
   }
-
-  console.log("new___", newRecString);
-  console.log("open___", openRecString);
 
   for (let index in pages) {
     if (pages[index].indexOf("Gladiators Stocks") !== -1) {
@@ -69,38 +85,29 @@ export const parseRecommendationStringsFromOutput = async (data) => {
     }
   }
 
+  console.log("fresh___", freshRecString);
+  console.log("new___", newRecString);
+  console.log("open___", openRecString);
   console.log("gladiators___", gladiatorsString);
 
   return [newRecString, openRecString, gladiatorsString];
 };
 
-export const tableStringToObjects = async (recommendationStrings, type) => {
-  const headers_Page1 = [
-    "Date",
-    "Scrip",
-    "iDirectCode",
-    "Action",
-    "InitiationRange",
-    "Target",
-    "Stoploss",
-    "Duration",
-  ];
+export const tableStringToObjects = async (recommendationStrings) => {
+  const indexOfDuration = recommendationStrings.indexOf("Duration");
+  const indexOfTimeFrame = recommendationStrings.indexOf("Time Frame");
 
-  const headers_Gladiators = [
-    "Date",
-    "ScripName",
-    "CMP",
-    "Strategy",
-    "RecommendationsPrice",
-    "Target",
-    "Stoploss",
-    "Timeframe",
-  ];
+  let headersEndIndex;
 
-  let headers;
+  if (indexOfDuration !== -1) {
+    headersEndIndex = indexOfDuration + 8;
+  } else if (indexOfTimeFrame !== -1) {
+    headersEndIndex = indexOfTimeFrame + 10;
+  } else {
+    console.log("headersEndIndex not found");
+  }
 
-  if (type === "Intraday/Positional") headers = headers_Page1;
-  if (type === "Gladiators") headers = headers_Gladiators;
+  const headers = recommendationStrings.slice(0, headersEndIndex).split(",");
 
   // Calculate the number of columns
   const numColumns = headers.length;
@@ -111,7 +118,9 @@ export const tableStringToObjects = async (recommendationStrings, type) => {
   if (!recommendationStrings) {
     return [];
   }
-  recommendationStrings = recommendationStrings.slice(78).split(",");
+  recommendationStrings = recommendationStrings
+    .slice(headersEndIndex + 1)
+    .split(",");
 
   // Iterate through the recommendation strings and convert them into objects
   for (let i = 0; i < recommendationStrings.length; i += numColumns) {
