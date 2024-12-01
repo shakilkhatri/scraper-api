@@ -35,9 +35,9 @@ app.get("/", async (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 
-app.get("/scrape", scrapev1); // uses params
-app.post("/scrapev2", scrapev2); // uses body
-app.post("/scrapev2POSTapi", scrapev2POSTapi); // uses body
+app.get("/scrape", scrapev1); // uses params (url,selector)
+app.post("/scrapev2", scrapev2); // uses body {url,selector}
+app.post("/scrapev2POSTapi", scrapev2POSTapi); // uses body {url, payload}
 app.get("/google", google);
 app.post("/url", anyUrl);
 app.get("/pdfToText", pdfUrlToText);
