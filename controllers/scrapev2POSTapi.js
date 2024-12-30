@@ -13,7 +13,7 @@ export default async (req, res) => {
     const response = await axios.post(url, payload, {
       headers,
     });
-    console.log(response.data);
+    // console.log(response.data);
     res.status(200).send(response.data.data);
   } catch (error) {
     if (error.response) {
